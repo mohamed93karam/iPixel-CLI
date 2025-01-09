@@ -13,13 +13,13 @@ Tested only on a 96x16 display, but should work on other sizes (if not please op
 - [x] ✏️ Write text on the screen (with custom font support)
 - [x] 💥 Clear memory
 - [x] 🔒 Set password (UNTESTED !)
+- [x] 🎢 Send animations
+- [x] 🖼️ Write frames to EEPROM
+- [x] ✅ Maintain connection to the device
 
 - [ ] 🔧 Set the clock and date
 - [ ] 🔧 Change orientation
-- [ ] 🎢 Send animations
-- [ ] 🖼️ Write frames to EEPROM
 - [ ] 🔈 Audio mode
-- [ ] ✅ Maintain connection to the device
 
 ## GUI App
 While this is a CLI tool, I am also working on a GUI app that will be available to easily edit animations and set text on the screen with some previews.

@@ -1,0 +1,12 @@
+TODO :
+- [x] Correction de bug pour les longues chaines de caractères.
+- [x] Support des couleurs pour le texte.
+- [x] Support des animations pour le texte.
+
+- Maintenir les frames envoyée à l'écran.
+- Sauvegarde des frames envoyée en EEPROM.
+- [x] Envoie d'animation complète.
+
+- [x] Maintenir la connexion avec l'appareil.
+- Menu interactif tant que le programme est ouvert.
+- Possibilité d'envoyer plusieurs instructions à la suite.

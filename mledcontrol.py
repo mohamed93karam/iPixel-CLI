@@ -1,28 +1,23 @@
-import asyncio
 import binascii
-from bleak import BleakClient
-from crccheck.crc import Crc8Maxim
+from bit_tools import *
 from img_2_pix import image_to_rgb_string
 from img_2_pix import charimg_to_hex_string
 
 address = "4B:1E:2E:35:73:A3"
 
-# Prend un int en chaine de caractère en hexadécimal sur 2 caractères
-def int2hex(n: int) -> str:
-    return hex(n)[2:].zfill(2)
-
-def clock(value: int = 1):
-    # Envoie de {11, 0, 6, 1} puis choix de la clock, puis Année, Mois, Jour, "weekOfDate".
+# Set the clock mode
+def set_clock_mode(value: int = 1):
+    # Sending {11, 0, 6, 1}, then clock to display (then Years, Month, Days, "weekOfDate" ?)
     header = bytes.fromhex("0b000601")
     parameter = bytes.fromhex(int2hex(value))
     end = bytes.fromhex("0100e80c0706")
 
     return header + parameter + end
 
-# Set the DIY Fun Mode (Mode de dessin)
+# Set the DIY Fun Mode (Drawing Mode)
 # Screen will not be saved in the EEPROM
-def setDIYFunMode(value):
-    # Envoie de {5, 0, 4, 1, 1}
+def set_fun_mode(value: bool):
+    # Send {5, 0, 4, 1, 1}
     data = bytes.fromhex("05000401")
     if value:
         data += bytes.fromhex("01")
@@ -30,152 +25,109 @@ def setDIYFunMode(value):
         data += bytes.fromhex("00")
     return data
     
-# UNTESTED
-def upsideDown():
-    # Envoie de {5, 0, 6, ByteCompanionObject.MIN_VALUE ???, 0}
+# Set the screen orientation to upside down
+def set_upside_down():
+    # Send {5, 0, 6, ByteCompanionObject.MIN_VALUE ???, 0}
     return
 
+# Wipe the EEPROM (Reset)
 def clear():
     # Envoie de 4, 0, 3, + byte companion code (0x80 = 128)
     return bytes.fromhex("04000380")
 
-def luminosity(value: int):
-    # Envoie de 5, 0, 4, + byte companion code (0x80 = 128) + Luminosité (0 à 100)
+# Set the device brightness
+# Value must be between 0 and 100
+def set_brightness(value: int):
+    # Send 5, 0, 4, + byte companion code (0x80 = 128) + Brightness (0 à 100)
     header = bytes.fromhex("05000480")
     parameter = bytes.fromhex(str(value).zfill(2))
 
     return header + parameter
+
+# Set the speed of the animation
+def set_speed(value:int):
+    header = bytes.fromhex("050003")
+    parameter = bytes.fromhex(int2hex(value)) # Sur 4 hexa (2 octets)
     
-# UNTESTED : Sort tout droit de la décompilation, potentiellement dangereux
-def setPassword(value: int):
-    # Envoie de 8, 0, 4, 2, i, (SUP : Puis 3* 2 charactère du mdp = 6 char)
+    return header + parameter
+
+# UNTESTED
+# Set the password for the device
+def set_password(value: int):
+    # Send 8, 0, 4, 2, i, (SUP : Puis 3* 2 charactère du mdp = 6 char)
     return
 
-def unlockPassword(value: int):
-    # Envoie de 7, 0, 5, 2, (SUP : Puis 3* 2 charactère du mdp = 6 char)
+# UNTESTED
+# Unlock the device with the password
+def unlock_password(value: int):
+    # Send 7, 0, 5, 2, (SUP : Puis 3* 2 charactère du mdp = 6 char)
     return
 
-def setPixel(x, y, color):
+# Set the color of a pixel
+def set_pixel(x, y, color):
     header = bytes.fromhex("0a00050100")                            # Header to write pixel
     color = bytes.fromhex(color)                                    # RGB
     pos = bytes.fromhex(int2hex(x) + int2hex(y))                    # Position
     return header + color + pos
 
-def test():
+def get_char_file(char):
     
-    # print_character_from_hex(logic_reverse_bits_order(switch_endian(invert_frames("07000600060006000600fe0086018601860186018601860186018601fe000000"))))
-    # print(charimg_to_hex_string("b.png"))
-    # print_character_from_hex(charimg_to_hex_string("b.png"))
-    #encode_char("b.png")
-    
-    return bytes.fromhex(test)
+    if char == "!":
+        return "font/generated/bang.png"
+    elif char == ".":
+        return "font/generated/point.png"
+    elif char == " ":
+        return "font/generated/space.png"
+    elif char == "'":
+        return "font/generated/apostrophe.png"
+    elif char == "-":
+        return "font/generated/dash.png"
+    elif char == "_":
+        return "font/generated/underscore.png"
+    elif char == "/":
+        return "font/generated/slash.png"
+    elif char == "\\":
+        return "font/generated/backslash.png"
+    elif char == "|":
+        return "font/generated/pipe.png"
+    elif char == ":":
+        return "font/generated/colon.png"
+    else:
+        return "font/generated/" + char + ".png"
 
-# Switch Endian
-def switch_endian(hex_string: str) -> str:
-    if len(hex_string) % 2 != 0:
-        raise ValueError("La longueur de la chaîne hexadécimale doit être paire.")
-
-    octets = [hex_string[i:i+2] for i in range(0, len(hex_string), 2)]
-    octets.reverse()
-    return ''.join(octets)
-
-# Inverse l'ordre de trames de 2 octets
-def invert_frames(hex_string: str) -> str:
-    # Split the string into 4 characters
-    frames = [hex_string[i:i+4] for i in range(0, len(hex_string), 4)]
-    frames.reverse()
-    return ''.join(frames)
-
-# Applique la logique NOT sur une chaine hexadécimale
-def logic_not_hex(hex_string: str) -> str:
-    # Split the string into 2 characters
-    octets = [hex_string[i:i+2] for i in range(0, len(hex_string), 2)]
-    # Apply the NOT logic on each character
-    inverted = [f"{~int(octet, 16) & 0xFF:02x}" for octet in octets]
-    return ''.join(inverted)
-
-def reverse_bits_16(n):
-    """Inverse les bits d'un entier 16 bits."""
-    n = ((n & 0xFF00) >> 8) | ((n & 0x00FF) << 8)  # Échange des 8 bits de poids fort/faible
-    n = ((n & 0xF0F0) >> 4) | ((n & 0x0F0F) << 4)  # Échange des groupes de 4 bits
-    n = ((n & 0xCCCC) >> 2) | ((n & 0x3333) << 2)  # Échange des groupes de 2 bits
-    n = ((n & 0xAAAA) >> 1) | ((n & 0x5555) << 1)  # Échange des bits individuels
-    return n
-
-def logic_reverse_bits_order(hex_string):
-    """
-    Prend une chaîne hexadécimale, inverse les bits de chaque paquet de 2 octets,
-    et retourne une nouvelle chaîne hexadécimale.
-    """
-    # Vérification que la longueur de la chaîne est paire
-    if len(hex_string) % 4 != 0:
-        raise ValueError("La chaîne hexadécimale doit avoir une longueur multiple de 4 (2 octets).")
-    
-    result = []
-    
-    # Parcours de la chaîne par paquets de 4 caractères hexadécimaux (2 octets)
-    for i in range(0, len(hex_string), 4):
-        chunk = hex_string[i:i+4]  # Extraire 2 octets (4 caractères hex)
-        value = int(chunk, 16)     # Convertir en entier base 16
-        reversed_value = reverse_bits_16(value)  # Inverser les bits
-        result.append(f"{reversed_value:04X}")   # Ajouter à la liste en format hexadécimal
-    
-    return "".join(result)  # Retourner la chaîne hex finale
-
-# Calcul le checksum CRC32 de données (bytes)
-def CRC32_checksum(data):
-    # Calculer naïvement le CRC32
-    calculated_crc = binascii.crc32(bytes.fromhex(data)) & 0xFFFFFFFF
-    calculated_crc_hex = f"{calculated_crc:08x}"
-    # Renvoyer le CRC32 avec Switch Endian.
-    return switch_endian(calculated_crc_hex)
-
-# Affichage lisible par un humain des trames
-def print_hex(hex_string: str):
-    octets = [hex_string[i:i+4] for i in range(0, len(hex_string), 4)]
-    print(' '.join(octets))
-
-def print_character_from_hex(hex_string: str):
-    # 9*16 pixels grid, 1 is for ON, 0 is for OFF
-    # For each 4 hex characters, print a line in binary
-    for i in range(0, len(hex_string), 4):
-        line = bin(int(hex_string[i:i+4], 16))[2:].zfill(16)
-        for j in range(0, 16, 1):
-            if line[j] == "0":
-                print("  ", end="")
-            else:
-                print("##", end="")
-        print("")
-
-# Encodage d'un texte en hexadécimal
+# Encode the text to display
 def encode_text(text):
     
-    # Convertit le texte en minuscules
+    # Convert the text to lowercase
     text = text.lower()
     
-    # Pour chaque caractère, encode le caractère en hexadécimal
+    # For each character, generate the hex string
     characters = ""
     for char in text:
         characters += "80"      # ???
         characters += "ffffff"  # Color
         characters += "0a10"    # ???
-        characters += logic_reverse_bits_order(switch_endian(invert_frames(charimg_to_hex_string("font/generated/" + char + ".png"))))
+        characters += logic_reverse_bits_order(switch_endian(invert_frames(charimg_to_hex_string(get_char_file(char)))))
 
     return characters.lower()
 
-# Envoi du texte sur l'affichage ET sauvegarde dans l'EEPROM
-def sendText(text):
-    header_1 = hex(0x1D + len(text) * 0x26)[2:]
-    header_2 = "00000100"
-    header_3 = hex(0xE + len(text) * 0x26)[2:]
-    header_4 = "000000"
+# Send a text to the device and save it in the EEPROM
+def send_text(text):
+    header_1 = switch_endian(hex(0x1D + len(text) * 0x26)[2:].zfill(4))
+    header_2 = "000100"
+    header_3 = switch_endian(hex(0xE + len(text) * 0x26)[2:].zfill(4))
+    header_4 = "0000"
     header = header_1 + header_2 + header_3 + header_4
     
-    save_slot = "0001"                                          # Save slot
-    
+    save_slot = "0001"                                          # Save slot : 0065 temporaire
     number_of_characters = int2hex(len(text))                   # Number of characters
     
-    properties = "000101005000ffffff00000000"                 # Different properties : Colors, speed
+    properties = "000101"                                       # header
+    animation = "01"                                            # 00 static, 01 right to left, 02 right to left, 05 blink, 06 breath, 07 Snowfall
+    speed = "50"                                                # Speed
+    rainbow_mode = "09"                                         # 00 disabled, from 02 to 09 = enabled
+    filler = "ffffff00000000"                                   # Useless ?
+    properties += animation + speed + rainbow_mode + filler
     
     characters = encode_text(text)
     
@@ -185,52 +137,39 @@ def sendText(text):
     
     return bytes.fromhex(header + checksum + save_slot + number_of_characters + properties + characters)
 
-def setScreen():
-    # Les couleurs sont mises à la suite, à partir du HEADER, une couleur = 3 octets eg White = FFFFFF
-    # Affichage que pdt un cours instant... ???
+# Show a PNG only for a short period of time
+def set_screen():
     header = bytes.fromhex("091200000000120000")
     payload = ""
     
-    # Affichage d'un écran blanc
+    # Show a blank screen
     # for i in range(16*96):
     #     payload += "ffffff"
     
-    payload = image_to_rgb_string("testAAL.png") # Après test, l'utilisation d'un filtre linéaire ou sans filtre dépend des logos...
+    payload = image_to_rgb_string("testAAL.png")
     
     data = header + bytes.fromhex(payload)
     
     return data
 
+# Send an GIF animation to the device
+def send_animation(gif_hex):
+    CST = "030000"
+    checksum = CRC32_checksum(gif_hex)
+    sizegif = get_frame_size(gif_hex, 8)
+    slot = "0201" # Number of images on the left, slot on the right ?
+    totalsize = get_frame_size("FFFF" + CST + sizegif + checksum + slot + gif_hex, 4)
+    
+    return bytes.fromhex(totalsize + CST + sizegif + checksum + slot + gif_hex)
+
 # UNTESTED
-# Permet de supprimer un écran.
+# Delete a screen from the EEPROM
 def delete_screen(n):
     header = bytes.fromhex("070002010100")
     return header + bytes.fromhex(int2hex(n))
 
 # UNTESTED
-# Permet de changer la position de la sauvegarde pour l'écran qui sera affiché ? (Prefix d'un écran)
-# Récupérer pour l'affichage d'un caractère.
+# Change the save slot position ???
 def set_save_position(n):
     header = bytes.fromhex("070008800100")
     return header + bytes.fromhex(int2hex(n))
-
-async def runner(address):
-    async with BleakClient(address) as client:
-        
-        #data = clock(7)
-        #data = setDIYFunMode(True)
-        #data = setPixel(95, 15, "ffffff") # X puis Y
-        #data = clear()
-        #data = set_save_position(0)
-        #data = setScreen()
-        #data = test()
-        #data = luminosity(0)
-        data = sendText("TEST")
-        
-        crcinst = Crc8Maxim()
-        crcinst.process(data)
-        model_number = await client.write_gatt_char("0000fa02-0000-1000-8000-00805f9b34fb", data + crcinst.finalbytes())
-
-
-if __name__ == "__main__":
-    asyncio.run(runner(address))
