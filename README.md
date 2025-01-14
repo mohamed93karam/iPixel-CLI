@@ -69,7 +69,7 @@ Available commands are:
 Example:
 
 ```bash
-python ipixelcli.py -a 4B:1E:2E:35:73:A3 -c send_text "Hello World !" rainbow_mode=5 speed=50
+python ipixelcli.py -a 4B:1E:2E:35:73:A3 -c send_text "Hello World" rainbow_mode=5 speed=50
 ```
 
 You can also start a basic WebSocket server using the following command :
@@ -91,7 +91,7 @@ For example :
 ```json
 {
     "command": "send_text",
-    "params": ["Hello World !", "rainbow_mode=1", "speed=50"]
+    "params": ["Hello World", "rainbow_mode=1", "speed=50"]
 }
 ```
 
