@@ -30,7 +30,7 @@ def charimg_to_hex_string(image_path):
 
     # Check if the image is 9x16 pixels
     if img.size != (9, 16):
-        raise ValueError("L'image doit être de taille 9x16 pixels.")
+        raise ValueError("The image must be 9x16 pixels")
 
     hex_string = ""
 

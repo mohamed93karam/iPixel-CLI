@@ -1,2 +1,3 @@
-font/generated/*
 archive
+__pycache__/
+animations/output_animation.gif
