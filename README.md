@@ -1,4 +1,4 @@
-# iPixel Color CLI
+# iPixel CLI
 
 Various reverse engineering tools and rewrite of the "iPixel Color" application in CLI Python for LED Matrix displays manufactured by Taizhou Yumo Lighting Co., Ltd.
 Tested only on a 96x16 display, but should work on other sizes (if not please open an issue).
