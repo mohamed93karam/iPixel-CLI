@@ -17,6 +17,7 @@ COMMANDS = {
     "set_screen": set_screen,
     "set_speed" : set_speed,
     "send_animation": send_animation,
+    "set_orientation": set_orientation
 }
 
 # Socket server

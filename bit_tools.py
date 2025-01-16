@@ -8,10 +8,6 @@ def invert_frames(hex_string: str) -> str:
     frames.reverse()
     return ''.join(frames)
 
-# Convert an integer to a hexadecimal string
-def int2hex(n: int) -> str:
-    return hex(n)[2:].zfill(2)
-
 # Switch the endian of a hexadecimal string
 def switch_endian(hex_string: str) -> str:
     if len(hex_string) % 2 != 0:
