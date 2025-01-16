@@ -14,7 +14,6 @@ Tested only on a 96x16 display, but should work on other sizes (if not please op
 - [x] 🎉 Set the display mode to fun mode (do not save display)
 - [x] ✏️ Write text on the screen (with custom font support)
 - [x] 💥 Clear memory
-- [x] 🔒 Set password (UNTESTED !)
 - [x] 🎢 Send animations
 - [x] 🖼️ Write frames to EEPROM
 - [x] ✅ Maintain connection to the device (WebSocket server)
@@ -23,6 +22,7 @@ Tested only on a 96x16 display, but should work on other sizes (if not please op
 
 - [ ] 🔧 Set the clock
 - [ ] 🔈 Audio mode
+- [ ] 🔒 Set password
 
 ## Installation
 
