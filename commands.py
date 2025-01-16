@@ -1,25 +1,76 @@
+import datetime
 from bit_tools import *
 from img_2_pix import image_to_rgb_string
 from img_2_pix import charimg_to_hex_string
 
 # Set the clock mode
-def set_clock_mode(value: int = 1):
-    # Sending {11, 0, 6, 1}, then clock to display (then Years, Month, Days, "weekOfDate" ?)
+def set_clock_mode(style: int = 1, date = "", show_date = "true", format_24 = "true"):
     
+    # Use system time if not specified
+    if date == "":
+        date = datetime.datetime.now()
+        day_of_week = date.weekday() + 1
+        month = date.month
+        day = date.day
+        year = date.year % 100
+    else:
+        date = date.split("/")
+        try:
+            day = int(date[0])
+            month = int(date[1])
+            year = int(date[2])
+            
+            calc_day = datetime.datetime(year, month, day)
+            day_of_week = calc_day.weekday() + 1
+        except ValueError as e:
+            raise ValueError(f"Invalid date format: {e}")
+    
+    # Convert to int if string
     try:
-        value = int(value)
+        style = int(style)
+        if show_date == "true":
+            show_date = True
+        else:
+            show_date = False
+        if format_24 == "true":
+            format_24 = True
+        else:
+            format_24 = False
     except ValueError as e:
         raise ValueError(f"Invalid parameter type: {e}")
     
     # Check if the value is within the valid range
-    if not 0 <= value <= 8:
+    if not 0 <= style <= 8:
         raise ValueError("Clock mode must be between 1 and 8 or 0 for disabled")
+    if not 1 <= day_of_week <= 7:
+        raise ValueError("Day of week must be between 1 and 7")
+    if not 1 <= month <= 12:
+        raise ValueError("Month must be between 1 and 12")
+    if not 1 <= day <= 31:
+        raise ValueError("Day must be between 1 and 31")
+    if not 0 <= year <= 99:
+        raise ValueError("Year must be between 0 and 99")
     
     header = bytes.fromhex("0b000601")
-    parameter = bytes.fromhex(int2hex(value))
-    end = bytes.fromhex("0100e80c0706")
+    
+    parameter = bytes.fromhex(int2hex(style))
+    if show_date:
+        parameter += bytes.fromhex("01")
+    else:
+        parameter += bytes.fromhex("00")
+    if format_24:
+        parameter += bytes.fromhex("01")
+    else:
+        parameter += bytes.fromhex("00")
+        
+    # Date to display
+    year = bytes.fromhex(int2hex(year))
+    month = bytes.fromhex(int2hex(month))
+    day = bytes.fromhex(int2hex(day))
+    day_of_week = bytes.fromhex(int2hex(day_of_week)) # 01 = Monday, 07 = Sunday
+    date = year + month + day + day_of_week
 
-    return header + parameter + end
+    return header + parameter + date
 
 # Set the DIY Fun Mode (Drawing Mode)
 # Screen will not be saved in the EEPROM
@@ -220,9 +271,14 @@ def send_animation(path_or_hex):
     else:
         return send_animation_hex(path_or_hex)
 
-# UNTESTED
-# Delete a screen of the EEPROM
+# delete screen n from EEPROM
 def delete_screen(n):
+    # convert to int
+    try:
+        n = int(n)
+    except ValueError as e:
+        raise ValueError(f"Invalid parameter type: {e}")
+
     header = bytes.fromhex("070002010100")
     return header + bytes.fromhex(int2hex(n))
 
