@@ -216,3 +216,8 @@ For example :
 ## Font generation
 
 Edit the `all.png` file in the font folder to change characters. Then run `gen_font.py` to get the trimmed characters.
+
+## Contributing
+
+Contributions are welcome! If you find a bug or have a feature request, please open an issue or submit a pull request.
+To get started on how to dump BLE logs from an Android device, refer to the [How to get BLE logs](docs/How_to_get_BLE_logs.md) guide.
