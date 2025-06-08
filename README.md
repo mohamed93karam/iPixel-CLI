@@ -19,8 +19,8 @@ Tested only on a 96x16 display, but should work on other sizes (if not please op
 - [x] ✅ Maintain connection to the device (WebSocket server)
 - [x] 🔧 Change orientation
 - [x] 🔧 Set the date
+- [X] 🔧 Set the clock
 
-- [ ] 🔧 Set the clock
 - [ ] 🔈 Audio mode
 - [ ] 🔒 Set password
 
@@ -74,6 +74,20 @@ python ipixelcli.py -a 4B:1E:2E:35:73:A3 -c send_text "Hello World" rainbow_mode
 - `date` (str): Date in `DD/MM/YYYY` format. Default: current date
 - `show_date` (bool): Show date (true/false). Default: true
 - `format_24` (bool): 24-hour format (true/false). Default: true
+
+---
+
+### `set_time`
+
+**Description:** Set the time of the device.
+
+**Parameters:**
+
+- `hour` (int): Hour (0-23). Default: current hour
+- `minute` (int): Minute (0-59). Default: current minute
+- `second` (int): Second (0-59). Default: current second
+
+If one or more parameter is missing, the current time will be used.
 
 ---
 
