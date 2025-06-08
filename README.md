@@ -1,6 +1,6 @@
 # iPixel CLI
 
-Python rewrite of the "iPixel Color" application in CLI Python for LED Matrix displays manufactured by Taizhou Yumo Lighting Co., Ltd.
+Python CLI rewrite of the "iPixel Color" application for LED Matrix displays manufactured by Taizhou Yumo Lighting Co., Ltd.
 Tested only on a 96x16 display, but should work on other sizes (if not please open an issue).
 
 ⚠️ Still experimental, some commands might change in the future. ⚠️
