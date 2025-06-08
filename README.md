@@ -1,6 +1,6 @@
 # iPixel CLI
 
-Various reverse engineering tools and rewrite of the "iPixel Color" application in CLI Python for LED Matrix displays manufactured by Taizhou Yumo Lighting Co., Ltd.
+Python rewrite of the "iPixel Color" application in CLI Python for LED Matrix displays manufactured by Taizhou Yumo Lighting Co., Ltd.
 Tested only on a 96x16 display, but should work on other sizes (if not please open an issue).
 
 ⚠️ Still experimental, some commands might change in the future. ⚠️
@@ -29,8 +29,8 @@ Tested only on a 96x16 display, but should work on other sizes (if not please op
 Clone the repository and install the required packages.
 
 ```bash
-git clone https://github.com/lucagoc/LED-Matrix-BLE-Tools
-cd LED-Matrix-BLE-Tools
+git clone https://github.com/lucagoc/iPixel-CLI
+cd iPixel-CLI
 ```
 
 Then use the package manager [pip](https://pip.pypa.io/en/stable/) to install the required packages.
@@ -54,10 +54,12 @@ Commands are executed using the following format:
 python ipixelcli.py -a <DEVICE_MAC_ADDRESS> -c <COMMAND> [PARAMETERS]
 ```
 
+`-c` can be used multiple times to send multiple commands in a single request.
+
 Example:
 
 ```bash
-python ipixelcli.py -a 4B:1E:2E:35:73:A3 -c send_text "Hello World" rainbow_mode=5 speed=50
+python ipixelcli.py -a 4B:1E:2E:35:73:A3 -c set_brightness value=20 -c send_text "Hello World" rainbow_mode=9 speed=50 animation=1
 ```
 
 ---
