@@ -2,6 +2,8 @@ import datetime
 from bit_tools import *
 from img_2_pix import image_to_rgb_string, charimg_to_hex_string
 
+import requests
+import json
 
 # Utility functions
 def to_bool(value):
@@ -142,7 +144,9 @@ def set_pixel(x, y, color):
 
 def send_text(text, rainbow_mode=0, animation=0, save_slot=1, speed=80, color="ffffff"):
     """Send a text to the device with configurable parameters."""
-    
+    if len(text) == 0:
+        text = get_text_from_url("https://script.google.com/macros/s/AKfycbzI911KKf6u_UAxOP4R_P_4I503wKBt3xoO-20JvBtYK_uM6CeNZBUbcm0u9ao5IYQk_w/exec?happyhour=true")
+        
     rainbow_mode = to_int(rainbow_mode, "rainbow mode")
     animation = to_int(animation, "animation")
     save_slot = to_int(save_slot, "save slot")
@@ -197,3 +201,34 @@ def send_animation(path_or_hex):
 def delete_screen(n):
     """Delete a screen from the EEPROM."""
     return bytes.fromhex("070002010100") + bytes.fromhex(int_to_hex(to_int(n, "screen index")))
+
+def get_text_from_url(url: str) -> str | None:
+    """
+    Sends a GET request to a URL, parses the JSON response, and returns the 'text' field.
+
+    Args:
+        url: The URL to send the request to.
+
+    Returns:
+        The text from the JSON response or None if an error occurs.
+    """
+    try:
+        # Send an HTTP GET request to the URL
+        response = requests.get(url)
+
+        # Raise an exception for bad status codes (4xx or 5xx)
+        response.raise_for_status()
+
+        # Parse the JSON response from the request
+        data = response.json()
+
+        # Extract and return the value of the 'text' key
+        return data.get("code")
+
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred with the request: {e}")
+        return None
+    except json.JSONDecodeError:
+        print("Failed to parse JSON response.")
+        return None
+
