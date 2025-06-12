@@ -2,3 +2,4 @@ websockets
 bleak
 pillow
 crccheck
+requests
