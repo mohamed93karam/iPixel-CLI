@@ -145,7 +145,7 @@ def set_pixel(x, y, color):
 def send_text(text, rainbow_mode=0, animation=0, save_slot=1, speed=80, color="ffffff"):
     """Send a text to the device with configurable parameters."""
     if len(text) == 0:
-        text = get_text_from_url("https://script.google.com/macros/s/AKfycbzI911KKf6u_UAxOP4R_P_4I503wKBt3xoO-20JvBtYK_uM6CeNZBUbcm0u9ao5IYQk_w/exec?happyhour=true")
+        text = get_text_from_url("https://script.google.com/a/macros/alpinrad.com/s/AKfycbyyoOmdU3cayVD9urQGvpj_k_3hWxq-QmFA-Ksxyaz_k772vwTf6O74Ez6VohWrCk4/exec?happyhour=true")
         
     rainbow_mode = to_int(rainbow_mode, "rainbow mode")
     animation = to_int(animation, "animation")
