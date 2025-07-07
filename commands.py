@@ -144,7 +144,7 @@ def set_pixel(x, y, color):
 
 def send_text(text, rainbow_mode=0, animation=0, save_slot=1, speed=80, color="ffffff"):
     """Send a text to the device with configurable parameters."""
-    if len(text) == 0:
+    if text == "happy_hour_code":
         text = get_text_from_url("https://script.google.com/a/macros/alpinrad.com/s/AKfycbyyoOmdU3cayVD9urQGvpj_k_3hWxq-QmFA-Ksxyaz_k772vwTf6O74Ez6VohWrCk4/exec?happyhour=true")
         
     rainbow_mode = to_int(rainbow_mode, "rainbow mode")
